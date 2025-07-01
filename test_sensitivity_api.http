@@ -1,0 +1,115 @@
+### 敏感度指标和权重API测试
+
+### 1. 获取所有指标信息
+GET http://localhost:8000/api/indicators
+Content-Type: application/json
+
+###
+
+### 2. 获取敏感度指标信息
+GET http://localhost:8000/api/indicators/sensitivity
+Content-Type: application/json
+
+###
+
+### 3. 获取指标权重信息  
+GET http://localhost:8000/api/indicators/weights
+Content-Type: application/json
+
+###
+
+### 4. 测试基准风险评估（无敏感度）
+POST http://localhost:8000/api/risk/evaluate
+Content-Type: application/json
+
+{
+  "jcxx": {
+    "rwmc": "基准测试任务",
+    "pgdwmc": "测试单位"
+  },
+  "zbxx": {
+    "indicator_001": 0,
+    "indicator_010": 3,
+    "indicator_026": 1
+  }
+}
+
+###
+
+### 5. 测试带敏感度的风险评估（等级2）
+POST http://localhost:8000/api/risk/evaluate
+Content-Type: application/json
+
+{
+  "jcxx": {
+    "rwmc": "敏感时期测试任务",
+    "pgdwmc": "测试单位"
+  },
+  "zbxx": {
+    "indicator_001": 0,
+    "indicator_010": 3,
+    "indicator_026": 1
+  },
+  "mgdxx": {
+    "sensitive_time": 1,
+    "sensitive_area": 0,
+    "sensitive_attribute": 0
+  }
+}
+
+###
+
+### 6. 测试最高敏感度风险评估（等级5）
+POST http://localhost:8000/api/risk/evaluate
+Content-Type: application/json
+
+{
+  "jcxx": {
+    "rwmc": "最高敏感度测试任务",
+    "pgdwmc": "测试单位"
+  },
+  "zbxx": {
+    "indicator_001": 0,
+    "indicator_010": 3,
+    "indicator_026": 1,
+    "indicator_016": 1,
+    "indicator_020": 2
+  },
+  "mgdxx": {
+    "sensitive_time": 1,
+    "sensitive_area": 1,
+    "sensitive_attribute": 2
+  }
+}
+
+###
+
+### 7. 测试中等风险+敏感度等级3
+POST http://localhost:8000/api/risk/evaluate
+Content-Type: application/json
+
+{
+  "jcxx": {
+    "rwmc": "中等风险敏感度测试",
+    "pgdwmc": "测试单位"
+  },
+  "zbxx": {
+    "indicator_014": 0,
+    "indicator_016": 1,
+    "indicator_020": 1,
+    "indicator_023": 1
+  },
+  "mgdxx": {
+    "sensitive_time": 1,
+    "sensitive_area": 1,
+    "sensitive_attribute": 0
+  }
+}
+
+###
+
+### 8. 健康检查
+GET http://localhost:8000/api/health
+Content-Type: application/json
+
+### 
