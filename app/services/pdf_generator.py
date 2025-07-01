@@ -205,76 +205,180 @@ class PDFReportGenerator:
         
         # ==================== 内容页 ====================
         
+        # 创建包含所有内容的主表格，实现页面框线效果
+        content_data = []
+        
         # 一、评估依据
-        story.append(Paragraph("一、评估依据", section_style))
-        story.append(Paragraph("（列举评估所依据的相关法律法规和标准等）", content_style))
-        story.append(Spacer(1, 2*cm))
+        section1_content = [
+            [Paragraph("一、评估依据", section_style)],
+            [Paragraph("（列举评估所依据的相关法律法规和标准等）", content_style)],
+            [Spacer(1, 1.5*cm)]
+        ]
+        content_data.extend(section1_content)
+        
+        # 添加分隔线
+        content_data.append([Paragraph("", content_style)])  # 空行作为分隔
         
         # 二、评估内容描述
-        story.append(Paragraph("二、评估内容描述", section_style))
-        story.append(Spacer(1, 2*cm))
+        section2_content = [
+            [Paragraph("二、评估内容描述", section_style)],
+            [Spacer(1, 1.5*cm)]
+        ]
+        content_data.extend(section2_content)
+        
+        # 添加分隔线
+        content_data.append([Paragraph("", content_style)])  # 空行作为分隔
         
         # 三、评估程序和方法
-        story.append(Paragraph("三、评估程序和方法", section_style))
-        story.append(Spacer(1, 2*cm))
+        section3_content = [
+            [Paragraph("三、评估程序和方法", section_style)],
+            [Spacer(1, 1.5*cm)]
+        ]
+        content_data.extend(section3_content)
         
-        # 四、评估分析及对策建议
-        story.append(Paragraph("四、评估分析及对策建议", section_style))
+        # 添加分隔线
+        content_data.append([Paragraph("", content_style)])  # 空行作为分隔
+        
+        # 四、评估分析及对策建议 - 标题
+        content_data.append([Paragraph("四、评估分析及对策建议", section_style)])
+        
+        # 创建主内容表格（前三部分）
+        main_content_table = Table(content_data, colWidths=[16*cm])
+        main_content_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), chinese_font),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            
+            # 设置页面外边框 - 调整为更细的线条
+            ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框调细
+            
+            # 在特定行下方添加分隔线（部分之间的分隔线）- 调整为更细的线条
+            ('LINEBELOW', (0, 2), (-1, 2), 0.5, colors.black),   # 一、之后的分隔线
+            ('LINEBELOW', (0, 5), (-1, 5), 0.5, colors.black),   # 二、之后的分隔线
+            ('LINEBELOW', (0, 8), (-1, 8), 0.5, colors.black),   # 三、之后的分隔线
+            
+            # 设置内边距
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        
+        story.append(main_content_table)
+        
+        # 四、评估分析及对策建议 - 详细内容
+        section4_data = []
         
         # 为每个风险指标创建单独的评估表格
         for idx, (indicator_name, risk_info) in enumerate(data.get("detail", {}).items(), 1):
-            # 创建单个风险点的评估表格
+            # 创建单个风险点的评估表格 - 采用更清晰的布局
             risk_data = [
-                ["", "风险点", ""],
-                ["", "风险情况描述", ""],
-                ["", "", "可能性等级"],
-                [str(idx), "风险分析结论", "危害程度等级"],
-                ["", "", "安全风险等级"],
-                ["", "对策建议", ""]
+                ["", "风险点"],
+                [str(idx), indicator_name],  # 风险点名称
+                ["", f"风险分析结论"],
+                ["", f"可能性等级: {risk_info[0]}"],
+                ["", f"危害程度等级: {risk_info[1]}"],
+                ["", f"安全风险等级: {risk_info[3]}"],
+                ["", "对策建议"],
+                ["", risk_info[4]]  # 对策建议内容
             ]
             
-            # 填入实际数据
-            risk_data[0][2] = ""  # 风险点标题留空
-            risk_data[1][1] = f"{indicator_name}"  # 风险情况描述
-            risk_data[1][2] = risk_info[6]  # 指标说明
-            risk_data[2][2] = risk_info[0]  # 可能性等级
-            risk_data[3][2] = risk_info[1]  # 危害程度等级
-            risk_data[4][2] = risk_info[3]  # 安全风险等级
-            risk_data[5][1] = risk_info[4]  # 对策建议
-            
-            # 创建表格
-            risk_table = Table(risk_data, colWidths=[1*cm, 12*cm, 3*cm])
+            # 创建表格 - 调整列宽使布局更合理
+            risk_table = Table(risk_data, colWidths=[1.5*cm, 14.5*cm])
             risk_table.setStyle(TableStyle([
-                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('FONTSIZE', (0, 0), (-1, -1), 11),
                 ('FONTNAME', (0, 0), (-1, -1), chinese_font),
                 ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ('BOX', (0, 0), (-1, -1), 1, colors.black),
-                ('INNERGRID', (0, 0), (-1, -1), 1, colors.black),
+                
+                # 设置清晰的边框和网格线 - 统一线条宽度
+                ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框与页面边框统一
+                ('INNERGRID', (0, 0), (-1, -1), 0.75, colors.black),  # 内部网格线
+                
                 # 合并单元格
-                ('SPAN', (0, 0), (0, 5)),  # 第一列数字列
-                ('SPAN', (1, 0), (2, 0)),  # 风险点标题行
-                ('SPAN', (1, 5), (2, 5)),  # 对策建议行
-                # 背景色
-                ('BACKGROUND', (1, 0), (2, 0), colors.lightgrey),
-                ('BACKGROUND', (1, 1), (1, 1), colors.lightgrey),
-                ('BACKGROUND', (1, 2), (1, 4), colors.lightgrey),
-                ('BACKGROUND', (1, 5), (2, 5), colors.lightgrey),
+                ('SPAN', (0, 0), (0, 1)),  # 合并序号列的前两行
+                ('SPAN', (0, 2), (0, 5)),  # 合并序号列的风险分析行
+                ('SPAN', (0, 6), (0, 7)),  # 合并序号列的对策建议行
+                
+                # 设置背景色
+                ('BACKGROUND', (0, 0), (1, 0), colors.lightgrey),  # 风险点标题行
+                ('BACKGROUND', (0, 2), (1, 2), colors.lightgrey),  # 风险分析结论标题行
+                ('BACKGROUND', (0, 6), (1, 6), colors.lightgrey),  # 对策建议标题行
+                
+                # 设置字体加粗
+                ('FONTWEIGHT', (0, 0), (1, 0), 'BOLD'),  # 风险点标题
+                ('FONTWEIGHT', (0, 2), (1, 2), 'BOLD'),  # 风险分析结论标题
+                ('FONTWEIGHT', (0, 6), (1, 6), 'BOLD'),  # 对策建议标题
+                
+                # 设置对齐方式
+                ('ALIGN', (0, 0), (0, -1), 'CENTER'),  # 序号列居中
+                ('VALIGN', (0, 0), (0, -1), 'MIDDLE'),  # 序号列垂直居中
+                
+                # 设置内边距，确保内容不贴边
+                ('TOPPADDING', (0, 0), (-1, -1), 6),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                ('LEFTPADDING', (0, 0), (0, -1), 4),  # 序号列左边距
+                ('RIGHTPADDING', (0, 0), (0, -1), 4), # 序号列右边距
+                ('LEFTPADDING', (1, 1), (1, 1), 12),  # 风险点名称左缩进
+                ('LEFTPADDING', (1, 3), (1, 5), 20),  # 风险等级信息左缩进
+                ('LEFTPADDING', (1, 7), (1, 7), 12),  # 对策建议内容左缩进
             ]))
             
-            story.append(risk_table)
-            story.append(Spacer(1, 0.5*cm))
+            # 将风险表格添加到第四部分数据中
+            section4_data.append([risk_table])
+            if idx < len(data.get("detail", {})):  # 如果不是最后一个，添加间距
+                section4_data.append([Spacer(1, 0.4*cm)])
         
-        # 五、评估结论
-        story.append(Paragraph("五、评估结论", section_style))
-        conclusion_text = f"（明确安全风险等级，可能发生事故的关键环节和关键部位等，并提出继续组织活动或者执行任务的建议，或者提出取消以及理由）<br/><br/>经评估，总体安全风险等级为：<b>{data.get('level', '')}</b>"
-        story.append(Paragraph(conclusion_text, content_style))
+        # 创建第四部分的容器表格
+        section4_table = Table(section4_data, colWidths=[16*cm])
+        section4_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), chinese_font),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            
+            # 设置页面外边框 - 调整为更细的线条
+            ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框调细
+            
+            # 设置内边距
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        
+        story.append(section4_table)
+        
+        # 五、评估结论 - 创建带边框的表格
+        section5_data = [
+            [Paragraph("五、评估结论", section_style)],
+            [Paragraph(f"（明确安全风险等级，可能发生事故的关键环节和关键部位等，并提出继续组织活动或者执行任务的建议，或者提出取消以及理由）<br/><br/>经评估，总体安全风险等级为：<b>{data.get('level', '')}</b>", content_style)]
+        ]
+        
+        section5_table = Table(section5_data, colWidths=[16*cm])
+        section5_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), chinese_font),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            
+            # 设置页面外边框 - 调整为更细的线条
+            ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框调细
+            
+            # 在标题行下方添加分隔线 - 调整为更细的线条
+            ('LINEBELOW', (0, 0), (-1, 0), 0.5, colors.black),  # 分隔线调细
+            
+            # 设置内边距
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        
+        story.append(section5_table)
         
         # 分页到签字页
         story.append(PageBreak())
         
         # ==================== 签字页 ====================
-        story.append(Spacer(1, 8*cm))
         
         # 创建右对齐的签字样式
         right_align_style = ParagraphStyle(
@@ -286,24 +390,38 @@ class PDFReportGenerator:
             fontName=chinese_font
         )
         
-        # 组长签字（右对齐，签字在上方，日期在下方）
-        leader_signature = "组长（签字）：_______________"
-        leader_date = "年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日"
+        # 签字页内容 - 创建带边框的表格
+        signature_data = [
+            [Spacer(1, 6*cm)],  # 顶部空白
+            [Paragraph("组长（签字）：_______________", right_align_style)],
+            [Paragraph("年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日", right_align_style)],
+            [Spacer(1, 2*cm)],  # 中间间隔
+            [Paragraph("六、业务主管部门意见", section_style)],
+            [Spacer(1, 3*cm)],  # 意见填写空间
+            [Paragraph("签字（盖章）：_______________", right_align_style)],
+            [Paragraph("年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日", right_align_style)]
+        ]
         
-        story.append(Paragraph(leader_signature, right_align_style))
-        story.append(Paragraph(leader_date, right_align_style))
-        story.append(Spacer(1, 2*cm))
+        signature_table = Table(signature_data, colWidths=[16*cm])
+        signature_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), chinese_font),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            
+            # 设置页面外边框 - 调整为更细的线条
+            ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框调细
+            
+            # 在第六部分标题下方添加分隔线 - 调整为更细的线条
+            ('LINEBELOW', (0, 4), (-1, 4), 0.5, colors.black),  # 分隔线调细
+            
+            # 设置内边距
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LEFTPADDING', (0, 0), (-1, -1), 12),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        ]))
         
-        # 六、业务主管部门意见
-        story.append(Paragraph("六、业务主管部门意见", section_style))
-        story.append(Spacer(1, 4*cm))
-        
-        # 签字（盖章）（右对齐，签字在上方，日期在下方）
-        department_signature = "签字（盖章）：_______________"
-        department_date = "年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日"
-        
-        story.append(Paragraph(department_signature, right_align_style))
-        story.append(Paragraph(department_date, right_align_style))
+        story.append(signature_table)
         
         # 生成PDF
         doc.build(story)
