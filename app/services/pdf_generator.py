@@ -180,7 +180,7 @@ class PDFReportGenerator:
         
         # 日期
         current_date = datetime.now()
-        date_line = f"{current_date.year}&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;{current_date.month}&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;{current_date.day}&nbsp;&nbsp;&nbsp;&nbsp;日"
+        date_line = f"{current_date.year}&nbsp;年&nbsp;{current_date.month}&nbsp;月&nbsp;{current_date.day}&nbsp;日"
         story.append(Paragraph(date_line, date_style))
         
         # 底部表格
@@ -394,12 +394,12 @@ class PDFReportGenerator:
         signature_data = [
             [Spacer(1, 6*cm)],  # 顶部空白
             [Paragraph("组长（签字）：_______________", right_align_style)],
-            [Paragraph("年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日", right_align_style)],
-            [Spacer(1, 2*cm)],  # 中间间隔
+            [Paragraph("年&nbsp;&nbsp;月&nbsp;&nbsp;日", right_align_style)],
+            [Spacer(1, 0.1*cm)],  # 最小间隔，让分隔线紧贴日期
             [Paragraph("六、业务主管部门意见", section_style)],
             [Spacer(1, 3*cm)],  # 意见填写空间
             [Paragraph("签字（盖章）：_______________", right_align_style)],
-            [Paragraph("年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日", right_align_style)]
+            [Paragraph("年&nbsp;&nbsp;月&nbsp;&nbsp;日", right_align_style)]
         ]
         
         signature_table = Table(signature_data, colWidths=[16*cm])
@@ -411,8 +411,8 @@ class PDFReportGenerator:
             # 设置页面外边框 - 调整为更细的线条
             ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框调细
             
-            # 在第六部分标题下方添加分隔线 - 调整为更细的线条
-            ('LINEBELOW', (0, 4), (-1, 4), 0.5, colors.black),  # 分隔线调细
+            # 在组长签字部分下方添加分隔线，第六部分标题上方 - 调整为更细的线条
+            ('LINEBELOW', (0, 3), (-1, 3), 0.5, colors.black),  # 分隔线调细
             
             # 设置内边距
             ('TOPPADDING', (0, 0), (-1, -1), 8),
