@@ -10,6 +10,9 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus.doctemplate import BaseDocTemplate
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
+from reportlab.graphics.shapes import Drawing, Rect
+from reportlab.platypus.flowables import Flowable
+
 
 class PDFReportGenerator:
     def __init__(self):
@@ -87,8 +90,8 @@ class PDFReportGenerator:
         chinese_font = self._get_chinese_font()
         print(f"使用字体: {chinese_font}")
         
-        # 创建PDF文档
-        doc = SimpleDocTemplate(
+        # 创建PDF文档 - 使用BaseDocTemplate以便自定义页面模板
+        doc = BaseDocTemplate(
             filepath, 
             pagesize=A4,
             rightMargin=2*cm,
@@ -96,7 +99,44 @@ class PDFReportGenerator:
             topMargin=2*cm,
             bottomMargin=2*cm
         )
+        
+        # 创建自定义页面模板，在每页绘制边框
+        def draw_page_border(canvas, doc):
+            """在每页绘制页面边框的函数"""
+            canvas.saveState()
+            canvas.setStrokeColor(colors.black)
+            canvas.setLineWidth(1)
+            
+            # 计算边框位置（考虑页边距）
+            margin = 2*cm
+            page_width = A4[0] - 2*margin  # 17cm
+            page_height = A4[1] - 2*margin  # 25.7cm
+            
+            # 绘制页面边框
+            canvas.rect(margin, margin, page_width, page_height, stroke=1, fill=0)
+            canvas.restoreState()
+        
+        # 创建内容框架
+        content_frame = Frame(
+            2*cm, 2*cm, 17*cm, 25.7*cm,
+            leftPadding=12, rightPadding=12,
+            topPadding=12, bottomPadding=12,
+            id='content_frame'
+        )
+        
+        # 创建页面模板
+        page_template = PageTemplate(
+            id='bordered_page',
+            frames=[content_frame],
+            onPage=draw_page_border
+        )
+        
+        # 将页面模板添加到文档
+        doc.addPageTemplates([page_template])
         story = []
+        
+        # 计算页面实际可用宽度：A4宽度(21cm) - 左右边距(各2cm) = 17cm
+        page_width = 17*cm
         
         # 获取样式
         styles = getSampleStyleSheet()
@@ -205,71 +245,35 @@ class PDFReportGenerator:
         
         # ==================== 内容页 ====================
         
-        # 创建包含所有内容的主表格，实现页面框线效果
-        content_data = []
+        # 创建完整的页面内容数据 - 所有内容都在一个大表格中
+        all_page_content = []
         
         # 一、评估依据
-        section1_content = [
+        all_page_content.extend([
             [Paragraph("一、评估依据", section_style)],
             [Paragraph("（列举评估所依据的相关法律法规和标准等）", content_style)],
-            [Spacer(1, 1.5*cm)]
-        ]
-        content_data.extend(section1_content)
-        
-        # 添加分隔线
-        content_data.append([Paragraph("", content_style)])  # 空行作为分隔
+            [Spacer(1, 1.5*cm)],
+            [Paragraph("", content_style)]  # 分隔空行
+        ])
         
         # 二、评估内容描述
-        section2_content = [
+        all_page_content.extend([
             [Paragraph("二、评估内容描述", section_style)],
-            [Spacer(1, 1.5*cm)]
-        ]
-        content_data.extend(section2_content)
-        
-        # 添加分隔线
-        content_data.append([Paragraph("", content_style)])  # 空行作为分隔
+            [Spacer(1, 1.5*cm)],
+            [Paragraph("", content_style)]  # 分隔空行
+        ])
         
         # 三、评估程序和方法
-        section3_content = [
+        all_page_content.extend([
             [Paragraph("三、评估程序和方法", section_style)],
-            [Spacer(1, 1.5*cm)]
-        ]
-        content_data.extend(section3_content)
-        
-        # 添加分隔线
-        content_data.append([Paragraph("", content_style)])  # 空行作为分隔
+            [Spacer(1, 1.5*cm)],
+            [Paragraph("", content_style)]  # 分隔空行
+        ])
         
         # 四、评估分析及对策建议 - 标题
-        content_data.append([Paragraph("四、评估分析及对策建议", section_style)])
-        
-        # 创建主内容表格（前三部分）
-        main_content_table = Table(content_data, colWidths=[16*cm])
-        main_content_table.setStyle(TableStyle([
-            ('FONTNAME', (0, 0), (-1, -1), chinese_font),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            
-            # 设置页面外边框 - 调整为更细的线条
-            ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框调细
-            
-            # 在特定行下方添加分隔线（部分之间的分隔线）- 调整为更细的线条
-            ('LINEBELOW', (0, 2), (-1, 2), 0.5, colors.black),   # 一、之后的分隔线
-            ('LINEBELOW', (0, 5), (-1, 5), 0.5, colors.black),   # 二、之后的分隔线
-            ('LINEBELOW', (0, 8), (-1, 8), 0.5, colors.black),   # 三、之后的分隔线
-            
-            # 设置内边距
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('LEFTPADDING', (0, 0), (-1, -1), 12),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
-        ]))
-        
-        story.append(main_content_table)
+        all_page_content.append([Paragraph("四、评估分析及对策建议", section_style)])
         
         # 四、评估分析及对策建议 - 详细内容
-        section4_data = []
-        
-        # 为每个风险指标创建单独的评估表格
         for idx, (indicator_name, risk_info) in enumerate(data.get("detail", {}).items(), 1):
             # 创建单个风险点的评估表格 - 采用更清晰的布局
             risk_data = [
@@ -283,17 +287,18 @@ class PDFReportGenerator:
                 ["", risk_info[4]]  # 对策建议内容
             ]
             
-            # 创建表格 - 调整列宽使布局更合理
-            risk_table = Table(risk_data, colWidths=[1.5*cm, 14.5*cm])
+            # 创建表格 - 调整列宽使布局更合理，考虑框架内边距
+            available_width = page_width - 2.4*cm  # 减去框架的左右内边距 (12pt * 2 ≈ 0.85cm)
+            risk_table = Table(risk_data, colWidths=[1.5*cm, available_width-1.5*cm])
             risk_table.setStyle(TableStyle([
                 ('FONTSIZE', (0, 0), (-1, -1), 11),
                 ('FONTNAME', (0, 0), (-1, -1), chinese_font),
                 ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                 
-                # 设置清晰的边框和网格线 - 统一线条宽度
-                ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框与页面边框统一
-                ('INNERGRID', (0, 0), (-1, -1), 0.75, colors.black),  # 内部网格线
+                # 设置清晰的边框和网格线
+                ('BOX', (0, 0), (-1, -1), 0.75, colors.black),
+                ('INNERGRID', (0, 0), (-1, -1), 0.75, colors.black),
                 
                 # 合并单元格
                 ('SPAN', (0, 0), (0, 1)),  # 合并序号列的前两行
@@ -324,56 +329,51 @@ class PDFReportGenerator:
                 ('LEFTPADDING', (1, 7), (1, 7), 12),  # 对策建议内容左缩进
             ]))
             
-            # 将风险表格添加到第四部分数据中
-            section4_data.append([risk_table])
+            # 将风险表格添加到页面内容中
+            all_page_content.append([risk_table])
             if idx < len(data.get("detail", {})):  # 如果不是最后一个，添加间距
-                section4_data.append([Spacer(1, 0.4*cm)])
+                all_page_content.append([Spacer(1, 0.4*cm)])
         
-        # 创建第四部分的容器表格
-        section4_table = Table(section4_data, colWidths=[16*cm])
-        section4_table.setStyle(TableStyle([
-            ('FONTNAME', (0, 0), (-1, -1), chinese_font),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            
-            # 设置页面外边框 - 调整为更细的线条
-            ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框调细
-            
-            # 设置内边距
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('LEFTPADDING', (0, 0), (-1, -1), 12),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
-        ]))
-        
-        story.append(section4_table)
-        
-        # 五、评估结论 - 创建带边框的表格
-        section5_data = [
+        # 五、评估结论
+        all_page_content.extend([
+            [Paragraph("", content_style)],  # 分隔空行
             [Paragraph("五、评估结论", section_style)],
             [Paragraph(f"（明确安全风险等级，可能发生事故的关键环节和关键部位等，并提出继续组织活动或者执行任务的建议，或者提出取消以及理由）<br/><br/>经评估，总体安全风险等级为：<b>{data.get('level', '')}</b>", content_style)]
-        ]
+        ])
         
-        section5_table = Table(section5_data, colWidths=[16*cm])
-        section5_table.setStyle(TableStyle([
+                # 创建包含所有内容的表格 - 现在不需要外边框，因为PageTemplate会绘制页面边框
+        complete_page_table = Table(all_page_content, colWidths=[page_width])
+        
+        # 设置内容表格样式 - 只设置内部分隔线，不设置外边框
+        content_table_style = [
             ('FONTNAME', (0, 0), (-1, -1), chinese_font),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             
-            # 设置页面外边框 - 调整为更细的线条
-            ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框调细
+            # 不设置外边框，由PageTemplate负责绘制页面边框
+            # ('BOX', (0, 0), (-1, -1), 1, colors.black),  # 移除外边框
             
-            # 在标题行下方添加分隔线 - 调整为更细的线条
-            ('LINEBELOW', (0, 0), (-1, 0), 0.5, colors.black),  # 分隔线调细
-            
-            # 设置内边距
+            # 设置统一的内边距
             ('TOPPADDING', (0, 0), (-1, -1), 8),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
             ('LEFTPADDING', (0, 0), (-1, -1), 12),
             ('RIGHTPADDING', (0, 0), (-1, -1), 12),
-        ]))
+            
+            # 在各部分之间添加分隔线
+            ('LINEBELOW', (0, 3), (-1, 3), 0.5, colors.black),   # 一、之后的分隔线
+            ('LINEBELOW', (0, 6), (-1, 6), 0.5, colors.black),   # 二、之后的分隔线  
+            ('LINEBELOW', (0, 9), (-1, 9), 0.5, colors.black),   # 三、之后的分隔线
+        ]
         
-        story.append(section5_table)
+        complete_page_table.setStyle(TableStyle(content_table_style))
+        
+        # 设置表格跨页属性
+        complete_page_table.splitByRow = 1
+        complete_page_table.repeatRows = 0
+        complete_page_table.spaceAfter = 0
+        complete_page_table.spaceBefore = 0
+        
+        story.append(complete_page_table)
         
         # 分页到签字页
         story.append(PageBreak())
@@ -390,8 +390,8 @@ class PDFReportGenerator:
             fontName=chinese_font
         )
         
-        # 签字页内容 - 创建带边框的表格
-        signature_data = [
+        # 签字页内容 - 所有内容放在一个表格中形成完整页面边框
+        signature_page_content = [
             [Spacer(1, 6*cm)],  # 顶部空白
             [Paragraph("组长（签字）：_______________", right_align_style)],
             [Paragraph("年&nbsp;&nbsp;月&nbsp;&nbsp;日", right_align_style)],
@@ -402,26 +402,37 @@ class PDFReportGenerator:
             [Paragraph("年&nbsp;&nbsp;月&nbsp;&nbsp;日", right_align_style)]
         ]
         
-        signature_table = Table(signature_data, colWidths=[16*cm])
-        signature_table.setStyle(TableStyle([
+        # 创建签字页的内容表格
+        signature_page_table = Table(signature_page_content, colWidths=[page_width])
+        
+        # 设置签字页的内容样式 - 不设置外边框，由PageTemplate负责绘制页面边框
+        signature_content_style = [
             ('FONTNAME', (0, 0), (-1, -1), chinese_font),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             
-            # 设置页面外边框 - 调整为更细的线条
-            ('BOX', (0, 0), (-1, -1), 0.75, colors.black),  # 外边框调细
+            # 不设置外边框，由PageTemplate负责绘制页面边框
+            # ('BOX', (0, 0), (-1, -1), 1, colors.black),  # 移除外边框
             
-            # 在组长签字部分下方添加分隔线，第六部分标题上方 - 调整为更细的线条
-            ('LINEBELOW', (0, 3), (-1, 3), 0.5, colors.black),  # 分隔线调细
+            # 在组长签字部分下方添加分隔线，第六部分标题上方
+            ('LINEBELOW', (0, 3), (-1, 3), 0.5, colors.black),
             
-            # 设置内边距
+            # 设置统一的内边距
             ('TOPPADDING', (0, 0), (-1, -1), 8),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
             ('LEFTPADDING', (0, 0), (-1, -1), 12),
             ('RIGHTPADDING', (0, 0), (-1, -1), 12),
-        ]))
+        ]
         
-        story.append(signature_table)
+        signature_page_table.setStyle(TableStyle(signature_content_style))
+        
+        # 设置表格跨页属性
+        signature_page_table.splitByRow = 1
+        signature_page_table.repeatRows = 0
+        signature_page_table.spaceAfter = 0
+        signature_page_table.spaceBefore = 0
+        
+        story.append(signature_page_table)
         
         # 生成PDF
         doc.build(story)

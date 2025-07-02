@@ -7,18 +7,25 @@ class RiskEvaluator:
         self.pdf_generator = PDFReportGenerator()
     
     def _convert_zbxx_format(self, zbxx):
-        """将拼音编码输入转换为indicator_xxx格式"""
+        """将拼音编码输入转换为indicator_xxx格式，并将字符串值转换为整数"""
         converted_zbxx = {}
         
         for key, value in zbxx.items():
+            # 将字符串值转换为整数
+            try:
+                int_value = int(value)
+            except (ValueError, TypeError):
+                print(f"警告：指标 {key} 的值 '{value}' 无法转换为整数，跳过此指标")
+                continue
+            
             # 检查是否是拼音编码格式
             if key in PINYIN_TO_INDICATOR:
                 # 转换拼音编码为indicator_xxx格式
                 indicator_id = PINYIN_TO_INDICATOR[key]
-                converted_zbxx[indicator_id] = value
+                converted_zbxx[indicator_id] = int_value
             elif key.startswith('indicator_'):
                 # 已经是indicator_xxx格式，直接使用
-                converted_zbxx[key] = value
+                converted_zbxx[key] = int_value
             else:
                 # 未知格式，跳过或记录警告
                 print(f"警告：未识别的指标编码 {key}")
