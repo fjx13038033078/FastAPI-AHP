@@ -106,8 +106,8 @@ POST /api/risk/evaluate
         "pgdwmc": "派遣单位名称"
     },
     "zbxx": {
-        "indicator_001": 1,
-        "indicator_002": 0,
+        "indicator_001": "1",
+        "indicator_002": "0",
         // ... 其他指标值
     }
 }

@@ -116,11 +116,11 @@ class PDFReportGenerator:
             canvas.rect(margin, margin, page_width, page_height, stroke=1, fill=0)
             canvas.restoreState()
         
-        # 创建内容框架
+        # 创建内容框架 - 移除左右内边距，让表格能真正达到页面边框
         content_frame = Frame(
             2*cm, 2*cm, 17*cm, 25.7*cm,
-            leftPadding=12, rightPadding=12,
-            topPadding=12, bottomPadding=12,
+            leftPadding=0, rightPadding=0,
+            topPadding=12, bottomPadding=0,  # 移除底部内边距
             id='content_frame'
         )
         
@@ -135,8 +135,7 @@ class PDFReportGenerator:
         doc.addPageTemplates([page_template])
         story = []
         
-        # 计算页面实际可用宽度：A4宽度(21cm) - 左右边距(各2cm) = 17cm
-        page_width = 17*cm
+        # 注释：页面内容宽度为17cm（A4宽度21cm - 左右边距各2cm）
         
         # 获取样式
         styles = getSampleStyleSheet()
@@ -155,8 +154,8 @@ class PDFReportGenerator:
             'TitleStyle',
             parent=styles['Title'],
             fontSize=20,
-            spaceAfter=3*cm,
-            spaceBefore=6*cm,
+            spaceAfter=2*cm,  # 减少标题后空白
+            spaceBefore=4*cm,  # 减少标题前空白
             alignment=1,  # 居中
             fontName=chinese_font
         )
@@ -165,7 +164,7 @@ class PDFReportGenerator:
             'DateStyle',
             parent=styles['Normal'],
             fontSize=14,
-            spaceAfter=3*cm,
+            spaceAfter=1*cm,  # 减少日期后空白
             alignment=1,  # 居中
             fontName=chinese_font
         )
@@ -184,6 +183,8 @@ class PDFReportGenerator:
             fontSize=14,
             spaceAfter=12,
             spaceBefore=20,
+            leftIndent=12,   # 12pt左缩进
+            rightIndent=12,  # 12pt右缩进
             fontName=chinese_font
         )
         
@@ -192,7 +193,8 @@ class PDFReportGenerator:
             parent=styles['Normal'],
             fontSize=11,
             spaceAfter=8,
-            leftIndent=0.5*cm,
+            leftIndent=12,   # 12pt左缩进
+            rightIndent=12,  # 12pt右缩进
             fontName=chinese_font
         )
         
@@ -223,12 +225,24 @@ class PDFReportGenerator:
         date_line = f"{current_date.year}&nbsp;年&nbsp;{current_date.month}&nbsp;月&nbsp;{current_date.day}&nbsp;日"
         story.append(Paragraph(date_line, date_style))
         
-        # 底部表格
+        # 计算剩余空间，让底部表格贴到页面底部
+        # 页面总高度 - 顶部边距 - 头部表格高度 - 标题高度 - 日期高度 - 底部表格高度
+        # A4高度：29.7cm，减去上下边距各2cm = 25.7cm可用高度
+        # 调整后已用高度：头部表格(2cm) + 标题空白(4cm) + 标题(2cm) + 日期空白(2cm) + 日期(1cm) = 11cm
+        # 底部表格高度约2cm，所以需要的spacer = 25.7 - 11 - 2 = 12.7cm
+        remaining_space = 25.7*cm - 11*cm - 2*cm  # 约12.7cm
+        story.append(Spacer(1, remaining_space))
+        
+        # 底部表格 - 使用页面全宽，让左右边框与页面边框重合
         bottom_table_data = [
             ["评估单位", data.get("dwmc", ""), "评估时间", data.get("report_time", "")],
             ["任务名称", data.get("rwmc", ""), "", ""]
         ]
-        bottom_table = Table(bottom_table_data, colWidths=[3*cm, 5*cm, 3*cm, 5*cm])
+        # 计算页面内容宽度：A4宽度(21cm) - 左右边距(各2cm) = 17cm
+        content_width = 17*cm
+        # 均分表格列宽，让表格填满整个内容宽度
+        col_width = content_width / 4  # 4列均分
+        bottom_table = Table(bottom_table_data, colWidths=[col_width, col_width, col_width, col_width])
         bottom_table.setStyle(TableStyle([
             ('FONTSIZE', (0, 0), (-1, -1), 12),
             ('FONTNAME', (0, 0), (-1, -1), chinese_font),
@@ -287,9 +301,10 @@ class PDFReportGenerator:
                 ["", risk_info[4]]  # 对策建议内容
             ]
             
-            # 创建表格 - 调整列宽使布局更合理，考虑框架内边距
-            available_width = page_width - 2.4*cm  # 减去框架的左右内边距 (12pt * 2 ≈ 0.85cm)
-            risk_table = Table(risk_data, colWidths=[1.5*cm, available_width-1.5*cm])
+            # 创建表格 - 使用页面内容宽度，让左右边框与页面边框重合
+            # 页面内容宽度：A4宽度(21cm) - 左右边距(各2cm) = 17cm
+            page_content_width = 17*cm
+            risk_table = Table(risk_data, colWidths=[1.5*cm, page_content_width-1.5*cm])
             risk_table.setStyle(TableStyle([
                 ('FONTSIZE', (0, 0), (-1, -1), 11),
                 ('FONTNAME', (0, 0), (-1, -1), chinese_font),
@@ -329,7 +344,7 @@ class PDFReportGenerator:
                 ('LEFTPADDING', (1, 7), (1, 7), 12),  # 对策建议内容左缩进
             ]))
             
-            # 将风险表格添加到页面内容中
+            # 将风险表格直接添加到页面内容中
             all_page_content.append([risk_table])
             if idx < len(data.get("detail", {})):  # 如果不是最后一个，添加间距
                 all_page_content.append([Spacer(1, 0.4*cm)])
@@ -341,8 +356,9 @@ class PDFReportGenerator:
             [Paragraph(f"（明确安全风险等级，可能发生事故的关键环节和关键部位等，并提出继续组织活动或者执行任务的建议，或者提出取消以及理由）<br/><br/>经评估，总体安全风险等级为：<b>{data.get('level', '')}</b>", content_style)]
         ])
         
-                # 创建包含所有内容的表格 - 现在不需要外边框，因为PageTemplate会绘制页面边框
-        complete_page_table = Table(all_page_content, colWidths=[page_width])
+        # 创建包含所有内容的表格 - 现在不需要外边框，因为PageTemplate会绘制页面边框
+        # 使用页面内容宽度：17cm
+        complete_page_table = Table(all_page_content, colWidths=[17*cm])
         
         # 设置内容表格样式 - 只设置内部分隔线，不设置外边框
         content_table_style = [
@@ -353,11 +369,12 @@ class PDFReportGenerator:
             # 不设置外边框，由PageTemplate负责绘制页面边框
             # ('BOX', (0, 0), (-1, -1), 1, colors.black),  # 移除外边框
             
-            # 设置统一的内边距
+            # 只为文字内容设置内边距，表格内容不设置
             ('TOPPADDING', (0, 0), (-1, -1), 8),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('LEFTPADDING', (0, 0), (-1, -1), 12),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+            # 移除左右内边距，因为现在Frame没有内边距了
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
             
             # 在各部分之间添加分隔线
             ('LINEBELOW', (0, 3), (-1, 3), 0.5, colors.black),   # 一、之后的分隔线
@@ -387,6 +404,8 @@ class PDFReportGenerator:
             fontSize=11,
             alignment=2,  # 右对齐
             spaceAfter=8,
+            leftIndent=12,   # 12pt左缩进
+            rightIndent=12,  # 12pt右缩进
             fontName=chinese_font
         )
         
@@ -402,8 +421,8 @@ class PDFReportGenerator:
             [Paragraph("年&nbsp;&nbsp;月&nbsp;&nbsp;日", right_align_style)]
         ]
         
-        # 创建签字页的内容表格
-        signature_page_table = Table(signature_page_content, colWidths=[page_width])
+        # 创建签字页的内容表格 - 使用页面内容宽度：17cm
+        signature_page_table = Table(signature_page_content, colWidths=[17*cm])
         
         # 设置签字页的内容样式 - 不设置外边框，由PageTemplate负责绘制页面边框
         signature_content_style = [
@@ -417,11 +436,11 @@ class PDFReportGenerator:
             # 在组长签字部分下方添加分隔线，第六部分标题上方
             ('LINEBELOW', (0, 3), (-1, 3), 0.5, colors.black),
             
-            # 设置统一的内边距
+            # 移除内边距，让内容能贴边
             ('TOPPADDING', (0, 0), (-1, -1), 8),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('LEFTPADDING', (0, 0), (-1, -1), 12),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
         ]
         
         signature_page_table.setStyle(TableStyle(signature_content_style))
