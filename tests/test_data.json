@@ -1,0 +1,136 @@
+{
+  "test_cases": {
+    "case_1_indicator_format_high_risk": {
+      "description": "使用indicator格式的高风险测试数据",
+      "data": {
+        "jcxx": {
+          "rwmc": "高风险作业任务",
+          "pgdwmc": "某军工单位"
+        },
+        "zbxx": {
+          "gcdyzb": "5",
+          "xyzcrykzbx": "4",
+          "gwzlsfqq": "5",
+          "xjglqk": "3",
+          "zynlqk": "4",
+          "djqk": "5",
+          "aqscgl": "4"
+        },
+        "mgdxx": {
+          "sensitive_time": 1,
+          "sensitive_area": 1,
+          "sensitive_attribute": 2
+        }
+      }
+    },
+    "case_2_pinyin_format_medium_risk": {
+      "description": "使用拼音编码格式的中等风险测试数据",
+      "data": {
+        "jcxx": {
+          "rwmc": "日常训练任务",
+          "pgdwmc": "训练基地"
+        },
+        "zbxx": {
+          "gcdyzb": "3",
+          "xyzcrykzbx": "2",
+          "gwzlsfqq": "3",
+          "aqscgl": "2",
+          "yjczsl": "3"
+        },
+        "mgdxx": {
+          "sensitive_time": 0,
+          "sensitive_area": 1,
+          "sensitive_attribute": 1
+        }
+      }
+    },
+    "case_3_low_risk": {
+      "description": "低风险测试数据",
+      "data": {
+        "jcxx": {
+          "rwmc": "办公室工作",
+          "pgdwmc": "行政部门"
+        },
+        "zbxx": {
+          "gcdyzb": "1",
+          "xyzcrykzbx": "2",
+          "gwzlsfqq": "1",
+          "xjglqk": "1",
+          "zynlqk": "2"
+        },
+        "mgdxx": {
+          "sensitive_time": 0,
+          "sensitive_area": 0,
+          "sensitive_attribute": 0
+        }
+      }
+    },
+    "case_4_mixed_format": {
+      "description": "混合格式测试数据（indicator和拼音编码混用）",
+      "data": {
+        "jcxx": {
+          "rwmc": "综合演练任务",
+          "pgdwmc": "演练指挥部"
+        },
+        "zbxx": {
+          "gcdyzb": "4",
+          "xyzcrykzbx": "3",
+          "gwzlsfqq": "5",
+          "aqscgl": "2",
+          "yjczsl": "4"
+        },
+        "mgdxx": {
+          "sensitive_time": 1,
+          "sensitive_area": 0,
+          "sensitive_attribute": 1
+        }
+      }
+    },
+    "case_5_no_sensitivity": {
+      "description": "无敏感度信息的测试数据",
+      "data": {
+        "jcxx": {
+          "rwmc": "常规检查任务",
+          "pgdwmc": "检查组"
+        },
+        "zbxx": {
+          "gcdyzb": "2",
+          "xyzcrykzbx": "3",
+          "gwzlsfqq": "2"
+        }
+      }
+    },
+    "case_6_empty_indicators": {
+      "description": "空指标测试数据",
+      "data": {
+        "jcxx": {
+          "rwmc": "空任务测试",
+          "pgdwmc": "测试单位"
+        },
+        "zbxx": {},
+        "mgdxx": {
+          "sensitive_time": 0,
+          "sensitive_area": 0,
+          "sensitive_attribute": 0
+        }
+      }
+    }
+  },
+  "quick_test": {
+    "description": "快速测试用的简单数据",
+    "jcxx": {
+      "rwmc": "快速测试任务",
+      "pgdwmc": "测试单位"
+    },
+    "zbxx": {
+      "gcdyzb": "3",
+      "xyzcrykzbx": "2",
+      "gwzlsfqq": "4"
+    },
+    "mgdxx": {
+      "sensitive_time": 0,
+      "sensitive_area": 1,
+      "sensitive_attribute": 1
+    }
+  }
+} 

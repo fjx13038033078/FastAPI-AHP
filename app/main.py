@@ -31,8 +31,17 @@ def create_app() -> FastAPI:
     # 包含API路由
     app.include_router(router, prefix=settings.API_PREFIX)
     
-    # 添加健康检查路由到根路径
-    app.include_router(router)
+    # 添加根路径健康检查
+    @app.get("/")
+    async def root():
+        """根路径健康检查"""
+        return {
+            "message": "AHP风险评估系统",
+            "status": "running",
+            "version": settings.APP_VERSION,
+            "docs": "/docs",
+            "api": "/api"
+        }
     
     return app
 
