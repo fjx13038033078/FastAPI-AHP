@@ -114,6 +114,48 @@
           "sensitive_attribute": "0"
         }
       }
+    },
+    "case_7_multi_select_high_risk": {
+      "description": "多选指标高风险测试数据",
+      "data": {
+        "jcxx": {
+          "rwmc": "复合弹药运输任务",
+          "pgdwmc": "特种运输单位"
+        },
+        "zbxx": {
+          "dylx": ["1", "2", "3"],
+          "dllx": ["2", "3"],
+          "claqptsb": ["0", "2"],
+          "gcdyzb": "3",
+          "gwzlsfqq": "1"
+        },
+        "mgdxx": {
+          "sensitive_time": "1",
+          "sensitive_area": "1",
+          "sensitive_attribute": "2"
+        }
+      }
+    },
+    "case_8_multi_select_mixed": {
+      "description": "多选指标混合风险测试数据",
+      "data": {
+        "jcxx": {
+          "rwmc": "综合道路运输任务",
+          "pgdwmc": "运输保障部队"
+        },
+        "zbxx": {
+          "dylx": ["0", "1"],
+          "dllx": ["0", "2"],
+          "gcdyzb": "2",
+          "gwzlsfqq": "0",
+          "sfqbtgzzsc": "1"
+        },
+        "mgdxx": {
+          "sensitive_time": "0",
+          "sensitive_area": "1",
+          "sensitive_attribute": "1"
+        }
+      }
     }
   },
   "quick_test": {
