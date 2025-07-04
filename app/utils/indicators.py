@@ -1,3 +1,10 @@
+# 支持多选的指标列表
+MULTI_SELECT_INDICATORS = {
+    "dylx",           # 弹药类型
+    "dllx",           # 道路类型  
+    "claqptsb"        # 车辆安全配套设备
+}
+
 # 指标配置信息 - 45个指标项
 INDICATORS_CONFIG = {
     "indicator_001": {
@@ -9,8 +16,8 @@ INDICATORS_CONFIG = {
         "description": "管理干部、库房管理员、作业人员、警戒员、安全员、驾驶员是否齐全",
         "suggestion": "1.确定缺失哪类岗位\n2.补充缺失的岗位人员",
         "risk_matrix": {
-            0: {"possibility": 8, "severity": 7},  # 否
-            1: {"possibility": 2, "severity": 2}   # 是
+            0: {"possibility": 6, "severity": 4},  # 否
+            1: {"possibility": 1, "severity": 4}   # 是
         }
     },
     "indicator_002": {
@@ -22,8 +29,8 @@ INDICATORS_CONFIG = {
         "description": "主要岗位任职年限是否超5年",
         "suggestion": "1.确定主要岗位任职年限\n2.更换主要岗位人员为5年以上",
         "risk_matrix": {
-            0: {"possibility": 9, "severity": 9},  # 否
-            1: {"possibility": 2, "severity": 2}   # 是
+            0: {"possibility": 4, "severity": 1},  # 否
+            1: {"possibility": 1, "severity": 1}   # 是
         }
     },
     "indicator_003": {
@@ -35,8 +42,8 @@ INDICATORS_CONFIG = {
         "description": "是否存在一人多岗",
         "suggestion": "1.尽量避免一人多岗",
         "risk_matrix": {
-            0: {"possibility": 2, "severity": 2},  # 否
-            1: {"possibility": 7, "severity": 6}   # 是
+            0: {"possibility": 3, "severity": 3},  # 否
+            1: {"possibility": 1, "severity": 3}   # 是
         }
     },
     "indicator_004": {
@@ -48,10 +55,10 @@ INDICATORS_CONFIG = {
         "description": "党员占比（党员人数÷总人数×100%）",
         "suggestion": "1.进行先期响应，组织风险决策，确定风险控制策略\n2.提前调换入党人员",
         "risk_matrix": {
-            0: {"possibility": 7, "severity": 6},  # 0%-25%
-            1: {"possibility": 5, "severity": 5},  # 26%-50%
-            2: {"possibility": 3, "severity": 3},  # 51%-75%
-            3: {"possibility": 1, "severity": 2}   # 76%-100%
+            0: {"possibility": 1, "severity": 4},  # 0%-25%
+            1: {"possibility": 3, "severity": 4},  # 26%-50%
+            2: {"possibility": 5, "severity": 4},  # 51%-75%
+            3: {"possibility": 7, "severity": 4}   # 76%-100%
         }
     },
     "indicator_005": {
@@ -63,8 +70,8 @@ INDICATORS_CONFIG = {
         "description": "人员是否全部通过政治审查",
         "suggestion": "1.进行先期响应，组织风险决策，确定风险控制策略\n2.提前调换政治考核通过人员",
         "risk_matrix": {
-            0: {"possibility": 8, "severity": 8},  # 否
-            1: {"possibility": 2, "severity": 2}   # 是
+            0: {"possibility": 4, "severity": 2},  # 否
+            1: {"possibility": 1, "severity": 2}   # 是
         }
     },
     "indicator_006": {
@@ -76,8 +83,8 @@ INDICATORS_CONFIG = {
         "description": "人员是否全部参加过安全教育",
         "suggestion": "1.进行先期响应，组织风险决策，确定风险控制策略\n2.开展安全教育培训会议",
         "risk_matrix": {
-            0: {"possibility": 7, "severity": 7},  # 否
-            1: {"possibility": 2, "severity": 2}   # 是
+            0: {"possibility": 5, "severity": 6},  # 否
+            1: {"possibility": 1, "severity": 6}   # 是
         }
     },
     "indicator_007": {
@@ -89,8 +96,8 @@ INDICATORS_CONFIG = {
         "description": "人员是否全部参加过保密培训",
         "suggestion": "1.进行先期响应，组织风险决策，确定风险控制策略\n2.开展保密培训会议",
         "risk_matrix": {
-            0: {"possibility": 6, "severity": 6},  # 否
-            1: {"possibility": 2, "severity": 2}   # 是
+            0: {"possibility": 4, "severity": 5},  # 否
+            1: {"possibility": 1, "severity": 5}   # 是
         }
     },
     "indicator_008": {
@@ -102,8 +109,8 @@ INDICATORS_CONFIG = {
         "description": "实操技能考核是否全部通过",
         "suggestion": "1.进行先期响应，组织风险决策，确定风险控制策略\n2.提前调换实操技能考核通过人员",
         "risk_matrix": {
-            0: {"possibility": 8, "severity": 7},  # 否
-            1: {"possibility": 2, "severity": 2}   # 是
+            0: {"possibility": 6, "severity": 5},  # 否
+            1: {"possibility": 1, "severity": 5}   # 是
         }
     },
     "indicator_009": {
@@ -115,8 +122,8 @@ INDICATORS_CONFIG = {
         "description": "理论知识考核是否全部通过",
         "suggestion": "1.进行先期响应，组织风险决策，确定风险控制策略\n2.提前调换理论知识考核通过人员",
         "risk_matrix": {
-            0: {"possibility": 6, "severity": 6},  # 否
-            1: {"possibility": 2, "severity": 2}   # 是
+            0: {"possibility": 6, "severity": 3},  # 否
+            1: {"possibility": 2, "severity": 3}   # 是
         }
     },
     "indicator_010": {
@@ -767,12 +774,87 @@ def get_indicator_weight(indicator_id):
     """获取指标权重"""
     return INDICATOR_WEIGHTS.get(indicator_id, 1.0)  # 默认权重1.0
 
-def calculate_comprehensive_risk(detail_risks, sensitivity_coefficient=1.0):
+def get_risk_level(risk_value):
+    """根据风险值确定风险等级"""
+    for (min_val, max_val), level in RISK_LEVELS.items():
+        if min_val <= risk_value <= max_val:
+            return level
+    return "未知风险"
+
+def calculate_multi_select_risk(indicator_id, values, config):
     """
-    使用综合风险计算公式：α = k(1+l/50)∑(wi*ri)
+    计算多选指标的风险值，取最高风险
     
     参数:
-        detail_risks: 详细风险信息字典
+        indicator_id: 指标ID
+        values: 值列表（可以是单个值或多个值的列表）
+        config: 指标配置
+        
+    返回:
+        tuple: (最大可能性, 最大危害程度, 最大风险值, 风险等级, 选择的值)
+    """
+    pinyin_code = config.get("pinyin_code", "")
+    
+    # 检查是否为多选指标
+    if pinyin_code not in MULTI_SELECT_INDICATORS:
+        # 不是多选指标，按单选处理
+        if isinstance(values, list):
+            values = values[0] if values else 0
+        
+        risk_matrix = config["risk_matrix"].get(values, {})
+        if risk_matrix:
+            possibility = risk_matrix["possibility"]
+            severity = risk_matrix["severity"]
+            risk_value = possibility * severity
+            risk_level = get_risk_level(risk_value)
+            return possibility, severity, risk_value, risk_level, values
+        else:
+            return 1, 1, 1, "一般", values
+    
+    # 多选指标处理
+    if not isinstance(values, list):
+        values = [values]  # 转换为列表
+    
+    max_possibility = 0
+    max_severity = 0
+    max_risk_value = 0
+    max_risk_level = "一般"
+    selected_value = values[0] if values else 0
+    
+    # 计算每个选项的风险值，取最大值
+    for value in values:
+        try:
+            value = int(value)
+            risk_matrix = config["risk_matrix"].get(value, {})
+            if risk_matrix:
+                possibility = risk_matrix["possibility"]
+                severity = risk_matrix["severity"]
+                risk_value = possibility * severity
+                
+                if risk_value > max_risk_value:
+                    max_possibility = possibility
+                    max_severity = severity
+                    max_risk_value = risk_value
+                    max_risk_level = get_risk_level(risk_value)
+                    selected_value = value
+        except (ValueError, TypeError):
+            continue
+    
+    # 如果没有找到有效的风险矩阵，返回默认值
+    if max_risk_value == 0:
+        max_possibility = 1
+        max_severity = 1
+        max_risk_value = 1
+        max_risk_level = "一般"
+    
+    return max_possibility, max_severity, max_risk_value, max_risk_level, selected_value
+
+def calculate_overall_risk(detail_risks, sensitivity_coefficient=1.0):
+    """
+    计算总体风险等级，完整实现风险评估逻辑
+    
+    参数:
+        detail_risks: 详细风险信息字典 {指标名称: [可能性, 危害程度, 风险值, 风险等级, ...]}
         sensitivity_coefficient: 敏感度系数k
         
     返回:
@@ -780,6 +862,76 @@ def calculate_comprehensive_risk(detail_risks, sensitivity_coefficient=1.0):
     """
     if not detail_risks:
         return "无风险", 0
+    
+    # 第一步：收集所有指标的风险值 {R1, R2, ..., Rm}
+    risk_values = []
+    for indicator_name, risk_info in detail_risks.items():
+        risk_value = int(risk_info[2])  # 风险值在索引2位置
+        risk_values.append(risk_value)
+    
+    # 情况1：若{R1,R2,…,Rm}中有特大风险，则R定为特大风险
+    max_risk = max(risk_values)
+    if max_risk >= 70:
+        return "特大", max_risk
+    
+    # 情况2：若{R1,R2,…,Rm}均为一般风险等级，则利用原始指标值计算综合评价值
+    if all(risk_value < 21 for risk_value in risk_values):
+        alpha = _calculate_weighted_risk(detail_risks, sensitivity_coefficient)
+        if alpha < 21:
+            return "一般", alpha
+        else:
+            return "较大", alpha
+    
+    # 找出最大风险值的数量
+    max_risk_count = risk_values.count(max_risk)
+    
+    # 情况3：若{R1,R2,…,Rm}中仅有一个最大值且最大值不为一般风险和特大风险
+    if max_risk_count == 1 and 21 <= max_risk < 70:
+        if max_risk >= 42:
+            return "重大", max_risk
+        else:
+            return "较大", max_risk
+    
+    # 情况4：若{R1,R2,…,Rm}中有l(l>1)个评估指标最大值且最大值不为一般风险和特大风险
+    if max_risk_count > 1 and 21 <= max_risk < 70:
+        # 找出所有具有最大风险值的指标
+        max_risk_indicators = {}
+        for indicator_name, risk_info in detail_risks.items():
+            if int(risk_info[2]) == max_risk:
+                max_risk_indicators[indicator_name] = risk_info
+        
+        # 情况4a：若最大值为较大风险
+        if 21 <= max_risk < 42:
+            alpha = _calculate_weighted_risk_for_subset(max_risk_indicators, sensitivity_coefficient)
+            if alpha < 42:
+                return "较大", alpha
+            else:
+                return "重大", alpha
+        
+        # 情况4b：若最大值为重大风险
+        elif 42 <= max_risk < 70:
+            alpha = _calculate_weighted_risk_for_subset(max_risk_indicators, sensitivity_coefficient)
+            if alpha < 70:
+                return "重大", alpha
+            else:
+                return "特大", alpha
+    
+    # 默认情况（理论上不应该到达这里）
+    return get_risk_level(max_risk), max_risk
+
+def _calculate_weighted_risk(detail_risks, sensitivity_coefficient=1.0):
+    """
+    计算加权风险值：α = k(1+l/50)∑(wi*ri)
+    
+    参数:
+        detail_risks: 详细风险信息字典
+        sensitivity_coefficient: 敏感度系数k
+        
+    返回:
+        int: 调整后的风险值α
+    """
+    if not detail_risks:
+        return 0
     
     # 获取指标数量l
     l = len(detail_risks)
@@ -804,20 +956,55 @@ def calculate_comprehensive_risk(detail_risks, sensitivity_coefficient=1.0):
     alpha = sensitivity_coefficient * quantity_factor * weighted_risk_sum
     
     # 限制在合理范围内[0, 100]
-    adjusted_risk = min(100, max(0, int(alpha)))
-    
-    # 确定风险等级
-    risk_level = get_risk_level(adjusted_risk)
-    
-    return risk_level, adjusted_risk
+    return min(100, max(0, int(alpha)))
 
-def get_risk_level(risk_value):
-    """根据风险值确定风险等级"""
-    for (min_val, max_val), level in RISK_LEVELS.items():
-        if min_val <= risk_value <= max_val:
-            return level
-    return "未知风险"
-
-def calculate_overall_risk(detail_risks, sensitivity_coefficient=1.0):
-    """计算总体风险等级，使用综合风险计算公式"""
-    return calculate_comprehensive_risk(detail_risks, sensitivity_coefficient) 
+def _calculate_weighted_risk_for_subset(subset_risks, sensitivity_coefficient=1.0):
+    """
+    为指标子集计算加权风险值，使用重新归一化的权重
+    Wi = wj/(∑wj)，然后 α = k(1+l/50)∑(Wi*ri)
+    
+    参数:
+        subset_risks: 子集详细风险信息字典
+        sensitivity_coefficient: 敏感度系数k
+        
+    返回:
+        int: 调整后的风险值α
+    """
+    if not subset_risks:
+        return 0
+    
+    # 获取子集指标数量l
+    l = len(subset_risks)
+    
+    # 计算原始权重总和
+    total_original_weight = 0
+    indicator_weights = {}
+    
+    for indicator_name, risk_info in subset_risks.items():
+        # 通过level_3匹配找到对应的indicator_id
+        indicator_id = None
+        for ind_id, config in INDICATORS_CONFIG.items():
+            if config["level_3"] == indicator_name:
+                indicator_id = ind_id
+                break
+        
+        if indicator_id:
+            original_weight = get_indicator_weight(indicator_id)
+            indicator_weights[indicator_name] = original_weight
+            total_original_weight += original_weight
+    
+    # 计算重新归一化的权重和加权风险值总和
+    weighted_risk_sum = 0
+    for indicator_name, risk_info in subset_risks.items():
+        if indicator_name in indicator_weights:
+            # 重新归一化权重：Wi = wj/(∑wj)
+            wi = indicator_weights[indicator_name] / total_original_weight
+            ri = int(risk_info[2])  # 风险值ri
+            weighted_risk_sum += wi * ri
+    
+    # 应用公式：α = k(1+l/50)∑(Wi*ri)
+    quantity_factor = 1 + l / 50  # 数量修正因子(1+l/50)
+    alpha = sensitivity_coefficient * quantity_factor * weighted_risk_sum
+    
+    # 限制在合理范围内[0, 100]
+    return min(100, max(0, int(alpha))) 

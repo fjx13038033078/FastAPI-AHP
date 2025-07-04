@@ -17,9 +17,9 @@
           "aqscgl": "4"
         },
         "mgdxx": {
-          "sensitive_time": 1,
-          "sensitive_area": 1,
-          "sensitive_attribute": 2
+          "sensitive_time": "1",
+          "sensitive_area": "1",
+          "sensitive_attribute": "2"
         }
       }
     },
@@ -38,9 +38,9 @@
           "yjczsl": "3"
         },
         "mgdxx": {
-          "sensitive_time": 0,
-          "sensitive_area": 1,
-          "sensitive_attribute": 1
+          "sensitive_time": "0",
+          "sensitive_area": "1",
+          "sensitive_attribute": "1"
         }
       }
     },
@@ -59,9 +59,9 @@
           "zynlqk": "2"
         },
         "mgdxx": {
-          "sensitive_time": 0,
-          "sensitive_area": 0,
-          "sensitive_attribute": 0
+          "sensitive_time": "0",
+          "sensitive_area": "0",
+          "sensitive_attribute": "0"
         }
       }
     },
@@ -80,9 +80,9 @@
           "yjczsl": "4"
         },
         "mgdxx": {
-          "sensitive_time": 1,
-          "sensitive_area": 0,
-          "sensitive_attribute": 1
+          "sensitive_time": "1",
+          "sensitive_area": "0",
+          "sensitive_attribute": "1"
         }
       }
     },
@@ -109,9 +109,9 @@
         },
         "zbxx": {},
         "mgdxx": {
-          "sensitive_time": 0,
-          "sensitive_area": 0,
-          "sensitive_attribute": 0
+          "sensitive_time": "0",
+          "sensitive_area": "0",
+          "sensitive_attribute": "0"
         }
       }
     }
@@ -128,9 +128,9 @@
       "gwzlsfqq": "4"
     },
     "mgdxx": {
-      "sensitive_time": 0,
-      "sensitive_area": 1,
-      "sensitive_attribute": 1
+      "sensitive_time": "0",
+      "sensitive_area": "1",
+      "sensitive_attribute": "1"
     }
   }
 } 
